@@ -1,0 +1,28 @@
+.columnContainer, .columnDraggingContainer {
+    display: flex;
+    flex-direction: column;
+    overflow-wrap: normal;
+    margin-right: 20px; /* Space between columns */
+    margin-top: 30px;
+    padding: 12px;
+    border: 1px solid #ccc;
+
+    width: 250px; /* Adjust as needed */
+    height: 500px;
+
+    /* From https://css.glass */
+    background: rgba(255, 255, 255, 0.34);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+        
+}
+
+.columnContainer {
+    border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.columnDraggingContainer {
+    border: 5px solid rgba(0, 0, 255, 0.09);
+} 

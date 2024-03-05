@@ -1,0 +1,23 @@
+.kanbanBoard {
+    display: flex;
+    flex-wrap: wrap; /* Allow columns to wrap to the next line */
+    align-items: flex-start; /* Align columns to the top */
+    padding: 10px;
+    margin: 10px;
+    backgrou: #e7eef6;
+}
+
+
+
+.columnAddButton {
+    position: absolute; /* Position the button absolutely */
+    right: 10px; /* Position to the right of the columns container */
+    top: 10px; /* Adjust as needed */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
