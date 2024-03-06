@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { Column, Id, Task } from "../../types";
 import styles from './ColumnContainer.module.css'
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
