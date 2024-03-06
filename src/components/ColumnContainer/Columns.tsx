@@ -38,13 +38,8 @@ function ColumnContainer(props: Props) {
     )
 
     if (isDragging) {
-        // return <div className={styles.columnDraggingContainer} ref={setNodeRef} style={style}></div>
         return ( 
-            <div className={styles.columnDraggingContainer} ref={setNodeRef} style={style}>
-                {/* <div ref={setNodeRef} style={style}> */}
-                    {/* {getColumnFormat()} */}
-                {/* </div> */}
-            </div>
+            <div className={styles.columnDraggingContainer} ref={setNodeRef} style={style}></div>
             )
     } else {
         return (

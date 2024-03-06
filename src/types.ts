@@ -16,5 +16,10 @@ export type Task = {
         description: string
     }[],
     totalSubtasks: number,
-    completedSubtasks: number
+    completedSubtasks: number,
+    dueDate: Date | null
+    // TODO
+    // users assigned
+    // SPECIFIC priorities -> aside from colors
+    // label days left
 }
