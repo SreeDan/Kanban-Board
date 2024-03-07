@@ -1,11 +1,13 @@
-import { useMemo } from "react";
-import { Column, Id, Task } from "../../types";
+import { useMemo, useState } from "react";
+import { ApplicationData, Column, Id, Task } from "../../types";
 import styles from './ColumnContainer.module.css'
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities'
 import TaskContainer from "../TaskContainer/TaskContainer";
-import { Card, Button, Group, Text, Menu, ActionIcon, Image, SimpleGrid, rem } from '@mantine/core';
-import { IconDots } from '@tabler/icons-react';
+import { Card, Button, Group, Text, Menu, ActionIcon, Image, SimpleGrid, rem, Modal, TextInput } from '@mantine/core';
+import { IconDots, IconPencil } from '@tabler/icons-react';
+import initialData from "../../initialData";
+import { useDisclosure } from "@mantine/hooks";
 
 interface Props {
     column: Column,
@@ -13,11 +15,14 @@ interface Props {
     
     tasks: Task[]
     createTask: (columnId: Id) => void
-    deleteTask: (id: Id) => void
+    deleteTask: (id: Id) => void,
+    initialStates: ApplicationData
 }
 
 function ColumnContainer(props: Props) {
     const { column, deleteColumn, createTask, tasks, deleteTask } = props;
+    const [openColumnNameModal, { open, close }] = useDisclosure(false);
+    const [ columnTitle, setColumnTitle ] = useState<string>(column.title)
 
     const {setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
         id: column.id,
@@ -37,6 +42,11 @@ function ColumnContainer(props: Props) {
         return tasks.map(task => task.id)}, [tasks]
     )
 
+    const handleColumnTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setColumnTitle(event.target.value);
+        column.title = event.target.value;
+    }
+
     if (isDragging) {
         return ( 
             <div className={styles.columnDraggingContainer} ref={setNodeRef} style={style}></div>
@@ -45,6 +55,21 @@ function ColumnContainer(props: Props) {
         return (
             <div className={styles.columnContainer} ref={setNodeRef} style={style}>
                 {getColumnFormat()}
+                
+                <Modal
+                    opened={openColumnNameModal}
+                    onClose={close}
+                    title={`Editing`}
+                    size="sm"
+                    centered
+                    overlayProps={{
+                        backgroundOpacity: 0.55,
+                        blur: 3,
+                    }}
+                >
+                    <TextInput value={columnTitle} onChange={handleColumnTitleChange} />
+
+                </Modal>
             </div>
         )
     }
@@ -65,8 +90,8 @@ function ColumnContainer(props: Props) {
                     
                         <Menu withinPortal position="bottom-end" shadow="sm">
                             <Menu.Target>
-                                <ActionIcon variant="subtle" color="gray">
-                                    <IconDots style={{ width: rem(16), height: rem(16) }} />
+                                <ActionIcon variant="subtle" color="gray" >
+                                    <IconPencil onClick={open} style={{ width: rem(25), height: rem(25) }} />
                                 </ActionIcon>
                             </Menu.Target>
                         </Menu>
@@ -78,7 +103,7 @@ function ColumnContainer(props: Props) {
         <div style={{overflowY: "auto"}}>
                 {tasks.map(task => (
                     <SortableContext items={tasksIds} >
-                        <TaskContainer key={task.id} task={task} deleteTask={deleteTask} />
+                        <TaskContainer key={task.id} task={task} deleteTask={deleteTask} initialStates={initialData}/>
                     </SortableContext>
                 ))}
             </div>

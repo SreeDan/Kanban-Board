@@ -51,7 +51,7 @@ function ColumnContainer(props: Props) {
             <div>
                 {tasks.map(task => (
                     <SortableContext items={tasksIds}>
-                        <TaskContainer key={task.id} task={task} deleteTask={deleteTask} />
+                        {/* <TaskContainer key={task.id} task={task} deleteTask={deleteTask} initialStates={}/> */}
                     </SortableContext>
                 ))}
             </div>

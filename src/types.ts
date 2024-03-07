@@ -5,6 +5,14 @@ export type Column = {
     title: string
 }
 
+export type Priority = {
+    id: Id,
+    title: string,
+    color: string,
+    value: string,
+    label: string
+}
+
 export type Task = {
     id: Id,
     columndId: Id,
@@ -17,9 +25,15 @@ export type Task = {
     }[],
     totalSubtasks: number,
     completedSubtasks: number,
-    dueDate: Date | null
+    dueDate: Date | null,
+    priority: Priority | null
     // TODO
     // users assigned
     // SPECIFIC priorities -> aside from colors
-    // label days left
+}
+
+export type ApplicationData = {
+    columns: Column[]
+    tasks: Task[]
+    priorities: Priority[]
 }

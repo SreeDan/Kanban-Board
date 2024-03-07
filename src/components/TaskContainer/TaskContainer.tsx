@@ -1,26 +1,37 @@
-import React, { MouseEventHandler, useMemo, useState } from 'react'
-import { Id, Task } from '../../types';
+import React, { MouseEventHandler, useEffect, useMemo, useState } from 'react'
+import { ApplicationData, Id, Priority, Task } from '../../types';
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities'
-import { Card, Progress, Modal, Textarea, Group, Text, ActionIcon, Input, CloseButton, Autocomplete, Pill } from '@mantine/core';
+import { Card, Progress, Modal, Textarea, Group, Text, ActionIcon, Input, CloseButton, Autocomplete, Pill, TextInput, Select } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { DatePickerInput, DateValue } from '@mantine/dates';
 import '@mantine/dates/styles.css';
 
-
 interface Props {
+    initialStates: ApplicationData
     task: Task;
+    priorities: Priority[];
+    prio: Priority
     deleteTask: (id: Id) => void;
 }
 
 function TaskContainer(props: Props) {
-    const { task, deleteTask } = props;
+    const { task, priorities, deleteTask } = props;
     const [mouseIsOver, setMouseIsOver] = useState(false);
     const [modalOpened, { open, close }] = useDisclosure(false);
     const [taskDescription, setTaskDescription] = useState<string>(task.description);
     const [taskTitle, setTaskTitle] = useState<string>(task.title);
     const [taskDueDate, setTaskDueDate] = useState<Date | null>(task.dueDate);
+    const [showSubtaskProgress, setShowSubtaskProgress] = useState<boolean>(false);
+    const [showDueDateChip, setShowDueDateChip] = useState<boolean>(false);
+    const [taskPriority, setTaskPriority] = useState<Priority | null>(task.priority);
+
+
+    useEffect(() => {
+        console.log("p are" + (priorities?.map(p => p.title) || []));  // Handle undefined
+      }, []);
+      
 
     const {setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable ({
         id: task.id,
@@ -47,7 +58,22 @@ function TaskContainer(props: Props) {
         return diffDays;
     }, [taskDueDate]
     )
-    
+
+    useEffect(() => {
+        if (task.dueDate === null) {
+            setShowDueDateChip(false);
+        } else {
+            setShowDueDateChip(true);
+        }
+    }, [task.dueDate])
+
+    useEffect(() => {
+        if (task.totalSubtasks == 0) {
+            setShowSubtaskProgress(false);
+        }  else {
+            setShowSubtaskProgress(true);
+        }
+    }, [task.subtask, task.totalSubtasks, task.completedSubtasks])
 
     const style = {
         transition,
@@ -77,6 +103,22 @@ function TaskContainer(props: Props) {
         setTaskDueDate(date);
     }
 
+    const handleTaskPriorityChange = (priority: string | null) => {
+        if (priority === null) {
+            return;
+        }
+        const priorityObj = priorities.find((p) => p.title === priority);
+        if (priorityObj === undefined) {
+            return;
+        }
+
+        console.log(task)
+
+        task.priority = priorityObj;
+        setTaskPriority(priorityObj)
+        console.log(task)
+    }
+
     
     if (isDragging) {
         return <div 
@@ -98,6 +140,7 @@ function TaskContainer(props: Props) {
                 onClose={close}
                 title={`Editing ${task.title}`}
                 size="70%"
+                centered
                 overlayProps={{
                     backgroundOpacity: 0.55,
                     blur: 3,
@@ -105,23 +148,32 @@ function TaskContainer(props: Props) {
             >
 
             <Group justify="space-between">
-            <Input.Wrapper label="Task title" >
-                <Input
-                    placeholder="Task Title"
-                    value={taskTitle}
-                    onChange={handleTaskTitleChange}
-                    rightSectionPointerEvents="all"
-                    mt="md"
-                    style={{width: '450px'}}
-                    rightSection={
-                        <CloseButton
-                            aria-label="Clear input"
-                            onClick={handleTaskTitleChangeButton}
-                            style={{ display: taskTitle ? undefined : 'none' }}
-                        />
-                    }
-                />
-            </Input.Wrapper>
+            <TextInput label="Task title"
+                placeholder="Task Title"
+                value={taskTitle}
+                onChange={handleTaskTitleChange}
+                rightSectionPointerEvents="all"
+                mt="md"
+                style={{width: '450px'}}
+                rightSection={
+                    <CloseButton
+                        aria-label="Clear input"
+                        onClick={handleTaskTitleChangeButton}
+                        style={{ display: taskTitle ? undefined : 'none' }}
+                    />
+                }
+            />
+            <Select
+                data={priorities.flatMap((p: Priority) => [{
+                    value: p.title,
+                    label: p.title
+                }])}
+                value={task.priority?.title}
+                onChange={handleTaskPriorityChange}
+                placeholder="Select or add option"
+                label="Priority"
+            />
+
             <DatePickerInput
                 valueFormat="MMM DD YYYY"
                 label="Due Date"
@@ -134,7 +186,6 @@ function TaskContainer(props: Props) {
             />
 
             </Group>
-
                 <Textarea
                     label="Task Description"
                     placeholder="Enter your task description..."
@@ -150,7 +201,7 @@ function TaskContainer(props: Props) {
 
     function getTaskFormat() {
         return (
-            <Card withBorder padding="sm" radius="md" style={{marginTop: "10px", marginRight: "5px", height: "200px", border: isDragging ? '5px solid rgba(0, 0, 255, 0.09)' : ''}} onClick={open}>
+            <Card withBorder padding="sm" radius="md" style={{marginTop: "10px", marginRight: "5px", height: "200px", border: isDragging ? '5px solid rgba(0, 0, 255, 0.09)' : '', background: taskPriority !== null ? taskPriority.color : ''}} onClick={open}>
                 <Group justify="space-between" style={{cursor: "grab", padding: '5px', marginBottom: "10px", visibility: isDragging ? 'hidden': 'inherit', border: '1px solid black', borderRadius: '5px'}} {...attributes} {...listeners}>
                     <Text fz={"lg"} fw={500}>{task.title.replace(/(.{27})..+/, "$1…")}</Text>
                     
@@ -160,27 +211,27 @@ function TaskContainer(props: Props) {
                         </ActionIcon>
                     }
 
-                    {!mouseIsOver && 
+                    {!mouseIsOver && showDueDateChip &&
                         <Pill size="lg">{daysLeft} day{daysLeft == 1 ? '' : 's'} left</Pill>
                     }
-
-                    {/* <MantineLogo type="mark" size="2rem" /> */}
-                    {/* <Badge>12 days left</Badge> */}
                 </Group>
 
             
             <Text fz="sm" c="dimmed" mt={5} style={{visibility: isDragging ? 'hidden': 'inherit'}}>
                 {task.description.replace(/(.{110})..+/, "$1…")}
             </Text>
-
-            <Text c="dimmed" fz="sm" mt="md" style={{visibility: isDragging ? 'hidden': 'inherit'}}>
-                Subtasks completed:{' '}
-                <Text span fw={500} c="bright">
-                    {task.completedSubtasks}/{task.totalSubtasks}
+            
+            { showSubtaskProgress && <div> 
+                <Text c="dimmed" fz="sm" mt="md" style={{visibility: isDragging ? 'hidden': 'inherit'}}>
+                    Subtasks completed:{' '}
+                    <Text span fw={500} c="bright">
+                        {task.completedSubtasks}/{task.totalSubtasks}
+                    </Text>
                 </Text>
-            </Text>
 
-            <Progress value={(task.completedSubtasks / task.totalSubtasks) * 100} mt={5} style={{visibility: isDragging ? 'hidden': 'inherit'}}/>
+                <Progress value={(task.completedSubtasks / task.totalSubtasks) * 100} mt={5} style={{visibility: isDragging ? 'hidden': 'inherit'}}/>
+            </div>
+            }
             </Card>
 
 
