@@ -200,7 +200,7 @@ function TaskContainer(props: Props) {
 
     function getTaskFormat() {
         return (
-            <Card withBorder padding="sm" radius="md" style={{marginTop: "10px", marginRight: "5px", height: "200px", border: isDragging ? '5px solid rgba(0, 0, 255, 0.09)' : '', background: taskPriority !== null ? taskPriority.color : ''}} onClick={open}>
+            <Card withBorder padding="sm" radius="md" style={{marginTop: "10px", marginRight: "5px", height: "200px", border: isDragging ? `5px solid ${taskPriority !== null ? taskPriority.color : 'rgba(0, 0, 255, 0.09)'}` : '', background: taskPriority !== null && !isDragging ? taskPriority.color : ''}} onClick={open}>
                 <Group justify="space-between" style={{cursor: "grab", padding: '5px', marginBottom: "10px", visibility: isDragging ? 'hidden': 'inherit', border: '1px solid black', borderRadius: '5px'}} {...attributes} {...listeners}>
                     <Text fz={"lg"} fw={500}>{task.title.replace(/(.{27})..+/, "$1…")}</Text>
                     
