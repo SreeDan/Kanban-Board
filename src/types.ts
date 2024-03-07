@@ -9,8 +9,6 @@ export type Priority = {
     id: Id,
     title: string,
     color: string,
-    value: string,
-    label: string
 }
 
 export type Task = {

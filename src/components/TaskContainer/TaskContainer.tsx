@@ -12,7 +12,6 @@ interface Props {
     initialStates: ApplicationData
     task: Task;
     priorities: Priority[];
-    prio: Priority
     deleteTask: (id: Id) => void;
 }
 

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ApplicationData, Column, Id, Task } from "../../types";
+import { ApplicationData, Column, Id, Priority, Task } from "../../types";
 import styles from './ColumnContainer.module.css'
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities'
@@ -12,7 +12,7 @@ import { useDisclosure } from "@mantine/hooks";
 interface Props {
     column: Column,
     deleteColumn: (id: Id) => void
-    
+    priorities: Priority[];
     tasks: Task[]
     createTask: (columnId: Id) => void
     deleteTask: (id: Id) => void,
@@ -20,7 +20,7 @@ interface Props {
 }
 
 function ColumnContainer(props: Props) {
-    const { column, deleteColumn, createTask, tasks, deleteTask } = props;
+    const { column, deleteColumn, createTask, tasks, deleteTask, priorities } = props;
     const [openColumnNameModal, { open, close }] = useDisclosure(false);
     const [ columnTitle, setColumnTitle ] = useState<string>(column.title)
 
@@ -103,7 +103,7 @@ function ColumnContainer(props: Props) {
         <div style={{overflowY: "auto"}}>
                 {tasks.map(task => (
                     <SortableContext items={tasksIds} >
-                        <TaskContainer key={task.id} task={task} deleteTask={deleteTask} initialStates={initialData}/>
+                        <TaskContainer key={task.id} task={task} deleteTask={deleteTask} initialStates={initialData} priorities={priorities}/>
                     </SortableContext>
                 ))}
             </div>

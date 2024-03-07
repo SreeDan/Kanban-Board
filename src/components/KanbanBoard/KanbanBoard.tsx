@@ -107,8 +107,6 @@ function KanbanBoard() {
                 id: uuid(),
                 title: title,
                 color: color,
-                label: title,
-                value: title
             }
 
             setPriorities([...priorities, priorityToAdd])
@@ -229,6 +227,7 @@ function KanbanBoard() {
                                 tasks={tasks.filter(task => task.columndId === col.id)}
                                 deleteTask={deleteTask}
                                 initialStates={initialData}
+                                priorities={priorities}
                                 />
                         </div>        
                     )}
@@ -251,10 +250,11 @@ function KanbanBoard() {
                             createTask={createTask}
                             deleteTask={deleteTask}
                             initialStates={initialData}
+                            priorities={priorities}
                             />)}
                     
                     {activeTask && priorities &&
-                        (<TaskContainer task={activeTask} priorities={priorities} prio={priorities[0]}
+                        (<TaskContainer task={activeTask} priorities={priorities}
                             deleteTask={deleteTask} initialStates={initialData} />
                         
                     )}
