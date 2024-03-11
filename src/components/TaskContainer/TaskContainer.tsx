@@ -1,12 +1,14 @@
-import React, { MouseEventHandler, useEffect, useMemo, useState } from 'react'
-import { ApplicationData, Id, Priority, Task } from '../../types';
+import React, { MouseEventHandler, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { ApplicationData, Id, Priority, Subtask, Task } from '../../types';
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities'
-import { Card, Progress, Modal, Textarea, Group, Text, ActionIcon, Input, CloseButton, Autocomplete, Pill, TextInput, Select } from '@mantine/core';
+import { Card, Progress, Modal, Textarea, Group, Text, ActionIcon, Input, CloseButton, Autocomplete, Pill, TextInput, Select, Divider, Checkbox } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, useForceUpdate } from '@mantine/hooks';
 import { DatePickerInput, DateValue } from '@mantine/dates';
 import '@mantine/dates/styles.css';
+import styles from './TaskContainer.module.css'
+import { v4 as UUID } from 'uuid';
 
 interface Props {
     initialStates: ApplicationData
@@ -25,7 +27,21 @@ function TaskContainer(props: Props) {
     const [showSubtaskProgress, setShowSubtaskProgress] = useState<boolean>(false);
     const [showDueDateChip, setShowDueDateChip] = useState<boolean>(false);
     const [taskPriority, setTaskPriority] = useState<Priority | null>(task.priority);
+    const [newSubtaskTitle, setNewSubtaskTitle] = useState<string>('');
+    const [newSubtaskDescription, setNewSubtaskDescription] = useState<string>('');
+    const [editSubtaskMode, setEditSubtaskMode] = useState<boolean>(false);
+    // const [subtasksDict, setSubtasksDict] = useState<{[id: Id]: Subtask}>({});
+    const [subtasks, setSubtasks] = useState<Subtask[]>([]);
 
+    // const updateSubtaskDict = () => {
+    //     console.log("changing subtasks is called")
+    //     const subtaskMap: {[id: Id]: Subtask} = {};
+    //     task.subtasks.forEach(element => {
+    //         subtaskMap[element.id] = element;
+    //     });
+    //     setSubtasksDict(subtaskMap);
+    //     console.log(subtaskMap)
+    // }
 
     useEffect(() => {
         console.log("p are" + (priorities?.map(p => p.title) || []));  // Handle undefined
@@ -72,7 +88,7 @@ function TaskContainer(props: Props) {
         }  else {
             setShowSubtaskProgress(true);
         }
-    }, [task.subtask, task.totalSubtasks, task.completedSubtasks])
+    }, [task.subtasks, task.totalSubtasks, task.completedSubtasks])
 
     const style = {
         transition,
@@ -118,6 +134,72 @@ function TaskContainer(props: Props) {
         console.log(task)
     }
 
+    const addSubtask = () => {
+        if (newSubtaskTitle === '' || newSubtaskDescription === '') {
+            return;
+        }
+
+        const newSubtask : Subtask = {
+            id: UUID(),
+            title: newSubtaskTitle,
+            description: newSubtaskDescription,
+            completed: false
+        }
+        const newSubtasks = [...task.subtasks, newSubtask];
+        task.subtasks = newSubtasks;
+        task.totalSubtasks++;
+        
+        setSubtasks(newSubtasks);
+        // updateSubtaskDict()
+    }
+
+    const deleteSubtask = (id: Id) => {
+        const newSubtasks = task.subtasks.filter((task) => task.id !== id);
+        setSubtasks(newSubtasks);
+        task.subtasks = newSubtasks;
+    }
+
+    const editSubtaskTitle = (id: Id, title: string) => {
+       const updatedSubtasks = task.subtasks.map(s => {
+            if (s.id === id) {
+                return {...s, title: title}
+            }
+            return s;
+       })
+
+       setSubtasks(updatedSubtasks)
+       task.subtasks = updatedSubtasks;
+    }
+
+    const editSubtaskDescription = (id: Id, description: string) => {
+        const updatedSubtasks = task.subtasks.map(s => {
+             if (s.id === id) {
+                 return {...s, description: description}
+             }
+             return s;
+        })
+ 
+        setSubtasks(updatedSubtasks)
+        task.subtasks = updatedSubtasks;
+     }
+
+     const handleSubtaskCompleted = (item: Subtask) => {
+        const updatedSubtasks = task.subtasks.map(s => {
+            if (s.id === item.id) {
+                return {...s, completed: !item.completed}
+            }
+            return s;
+       })
+
+       if (item.completed) {
+            task.completedSubtasks--;
+       } else {
+            task.completedSubtasks++;
+       }
+
+       setSubtasks(updatedSubtasks)
+       task.subtasks = updatedSubtasks
+     }
     
     if (isDragging) {
         return <div 
@@ -194,7 +276,82 @@ function TaskContainer(props: Props) {
                     maxRows={4}
                     onChange={handleTaskDescriptionChange}
                 />
+
+                <div> {/* show each subtask */}
+
+                <Divider my="md" />
+
+                    <h1>Subtasks</h1>
+
+                {
+                    subtasks.map((item, index) => (
+                        <div key={item.id} style={{marginBottom:'15px'}}>
+                        {index !== 0 && <Divider />}
+                            {!editSubtaskMode && 
+                                <div>
+                                    <Group>
+                                    <Checkbox 
+                                        // {...form.getInputProps('terms', { type: 'checkbox' })}
+                                        checked={item.completed} 
+                                        onChange={(_) => handleSubtaskCompleted(item)}/>
+                                    <div style={{fontSize: 18, textDecoration: item.completed ? "line-through": ""}}>{item.title} - {item.description}</div>
+                                    </Group>
+                                </div>
+                            }
+                        </div>
+                    ))
+                }
+
+                </div>
+
+                <div> {/* subtask */}
+
+                    <TextInput label="Subtask title"
+                        placeholder="Subtask Title"
+                        value={newSubtaskTitle}
+                        onChange={(event) => setNewSubtaskTitle(event.target.value)}
+                        rightSectionPointerEvents="all"
+                        mt="md"
+                        style={{width: '450px'}}
+                        rightSection={
+                            <CloseButton
+                                aria-label="Clear input"
+                                onClick={(_) => setNewSubtaskTitle('')}
+                                style={{ display: taskTitle ? undefined : 'none' }}
+                            />
+                    } />
+
+                    {/* <Group justify="space-between"> */}
+                    <div style={{display: 'flex', alignItems:  'space-between'}}>
+                    <Textarea
+                        label="Subtask Description"
+                        placeholder="Input subtask description"
+                        value={newSubtaskDescription}
+                        autosize
+                        minRows={2}
+                        maxRows={4}
+                        style={{width: '80%'}}
+                        onChange={(event) => setNewSubtaskDescription(event.target.value)}
+                        rightSection={
+                            <CloseButton
+                                aria-label="Clear input"
+                                onClick={(_) => setNewSubtaskDescription('')}
+                                style={{ display: taskTitle ? undefined : 'none' }}
+                            />
+                    }
+                    />
+                    {/* <div style={{position: 'relative', marginTop: '45px'}}> */}
+                        <button className={styles.addSubTaskButton} onClick={addSubtask}>Add Subtask</button>
+                    {/* </div> */}
+                    </div>
+                
+                </div>
+
+                
+            {/* </Group> */}
             </Modal>
+
+
         </div>
     )
 

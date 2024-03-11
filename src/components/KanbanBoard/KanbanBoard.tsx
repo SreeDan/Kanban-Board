@@ -44,15 +44,18 @@ function KanbanBoard() {
             columndId: columnId,
             title: `Task ${tasks.length}`,
             description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`,
-            subtask: [],
-            totalSubtasks: 5,
-            completedSubtasks: 3,
+            subtasks: [
+                // {
+                //     id: "123",
+                //     title: "garden",
+                //     description: "plant all the flowers",
+                //     completed: false
+                // }
+            ],
+            totalSubtasks: 0,
+            completedSubtasks: 0,
             dueDate: null,
             priority: null
-            // priority: {
-            //     title: 'Urgent',
-            //     color: '#e72f2f'
-            // }
         }
 
         setTasks([...tasks, newTask]);

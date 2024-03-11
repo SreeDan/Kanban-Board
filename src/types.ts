@@ -16,11 +16,7 @@ export type Task = {
     columndId: Id,
     title: string,
     description: string,
-    subtask: {
-        id: Id,
-        title: string,
-        description: string
-    }[],
+    subtasks: Subtask[],
     totalSubtasks: number,
     completedSubtasks: number,
     dueDate: Date | null,
@@ -28,6 +24,13 @@ export type Task = {
     // TODO
     // users assigned
     // SPECIFIC priorities -> aside from colors
+}
+
+export type Subtask = {
+    id: Id,
+    title: string,
+    description: string,
+    completed: boolean
 }
 
 export type ApplicationData = {

@@ -19,7 +19,7 @@ const initialData: ApplicationData = {
             title: "Low",
             color: "#c3ffa6"
         }
-    ]
+    ],
 }
 
 export default initialData
