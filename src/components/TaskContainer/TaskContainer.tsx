@@ -127,6 +127,8 @@ function TaskContainer(props: Props) {
             return;
         }
 
+        console.log(priority)
+
         console.log(task)
 
         task.priority = priorityObj;

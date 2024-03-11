@@ -5,6 +5,11 @@ const initialData: ApplicationData = {
     tasks: [],
     priorities: [
         {
+            id: "f147a7a2-1cc6-4cdc-b06d-2bf325ad1cdb",
+            title: "None",
+            color: "#FFFFFF"
+        },
+        {
             id: "4585b594-2c84-4e33-b924-8f081a0a2fd5",
             title: "High",
             color: "#ffb8b8"

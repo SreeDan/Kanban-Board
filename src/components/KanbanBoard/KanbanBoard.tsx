@@ -55,7 +55,7 @@ function KanbanBoard() {
             totalSubtasks: 0,
             completedSubtasks: 0,
             dueDate: null,
-            priority: null
+            priority: priorities.find(e => e.color === "#FFFFFF")!
         }
 
         setTasks([...tasks, newTask]);
