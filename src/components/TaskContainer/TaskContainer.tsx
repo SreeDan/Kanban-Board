@@ -31,7 +31,7 @@ function TaskContainer(props: Props) {
     const [newSubtaskDescription, setNewSubtaskDescription] = useState<string>('');
     const [editSubtaskMode, setEditSubtaskMode] = useState<boolean>(false);
     // const [subtasksDict, setSubtasksDict] = useState<{[id: Id]: Subtask}>({});
-    const [subtasks, setSubtasks] = useState<Subtask[]>([]);
+    const [subtasks, setSubtasks] = useState<Subtask[]>(task.subtasks);
 
     // const updateSubtaskDict = () => {
     //     console.log("changing subtasks is called")
