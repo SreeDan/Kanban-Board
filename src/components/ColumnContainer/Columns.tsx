@@ -5,7 +5,7 @@ import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities'
 import TaskContainer from "../TaskContainer/TaskContainer";
 import { Card, Button, Group, Text, Menu, ActionIcon, Image, SimpleGrid, rem, Modal, TextInput } from '@mantine/core';
-import { IconDots, IconPencil } from '@tabler/icons-react';
+import { IconDots, IconPencil, IconTrash } from '@tabler/icons-react';
 import initialData from "../../initialData";
 import { useDisclosure } from "@mantine/hooks";
 
@@ -88,12 +88,20 @@ function ColumnContainer(props: Props) {
                     
                     <Text fz={"xl"} fw={500}>{column.title}</Text>
                     
-                        <Menu withinPortal position="bottom-end" shadow="sm">
+                        <Menu withinPortal position="bottom-end" shadow="sm" >
+                            <div>
                             <Menu.Target>
                                 <ActionIcon variant="subtle" color="gray" >
                                     <IconPencil onClick={open} style={{ width: rem(25), height: rem(25) }} />
                                 </ActionIcon>
                             </Menu.Target>
+
+                            <Menu.Target>
+                                <ActionIcon variant="filled" color="red" >
+                                    <IconTrash onClick={(_) => deleteColumn(column.id)} style={{ width: rem(25), height: rem(25) }} />
+                                </ActionIcon>
+                            </Menu.Target>
+                            </div>
                         </Menu>
                 </Group>
             </Card.Section>

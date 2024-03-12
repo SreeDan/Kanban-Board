@@ -3,15 +3,16 @@ import { ApplicationData, Id, Priority, Subtask, Task } from '../../types';
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities'
 import { Card, Progress, Modal, Textarea, Group, Text, ActionIcon, Input, CloseButton, Autocomplete, Pill, TextInput, Select, Divider, Checkbox } from '@mantine/core';
-import { IconTrash } from '@tabler/icons-react';
+import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { useDisclosure, useForceUpdate } from '@mantine/hooks';
 import { DatePickerInput, DateValue } from '@mantine/dates';
 import '@mantine/dates/styles.css';
 import styles from './TaskContainer.module.css'
 import { v4 as UUID } from 'uuid';
+import SubtaskModal from '../SubtaskModal/SubtaskModal';
 
 interface Props {
-    initialStates: ApplicationData
+    initialStates: ApplicationData;
     task: Task;
     priorities: Priority[];
     deleteTask: (id: Id) => void;
@@ -30,18 +31,7 @@ function TaskContainer(props: Props) {
     const [newSubtaskTitle, setNewSubtaskTitle] = useState<string>('');
     const [newSubtaskDescription, setNewSubtaskDescription] = useState<string>('');
     const [editSubtaskMode, setEditSubtaskMode] = useState<boolean>(false);
-    // const [subtasksDict, setSubtasksDict] = useState<{[id: Id]: Subtask}>({});
     const [subtasks, setSubtasks] = useState<Subtask[]>(task.subtasks);
-
-    // const updateSubtaskDict = () => {
-    //     console.log("changing subtasks is called")
-    //     const subtaskMap: {[id: Id]: Subtask} = {};
-    //     task.subtasks.forEach(element => {
-    //         subtaskMap[element.id] = element;
-    //     });
-    //     setSubtasksDict(subtaskMap);
-    //     console.log(subtaskMap)
-    // }
 
     useEffect(() => {
         console.log("p are" + (priorities?.map(p => p.title) || []));  // Handle undefined
@@ -150,13 +140,20 @@ function TaskContainer(props: Props) {
         const newSubtasks = [...task.subtasks, newSubtask];
         task.subtasks = newSubtasks;
         task.totalSubtasks++;
-        
+
         setSubtasks(newSubtasks);
-        // updateSubtaskDict()
+        setNewSubtaskTitle('');
+        setNewSubtaskDescription('');
     }
 
-    const deleteSubtask = (id: Id) => {
-        const newSubtasks = task.subtasks.filter((task) => task.id !== id);
+    const deleteSubtask = (subtask: Subtask) => {
+        const newSubtasks = task.subtasks.filter((task) => task.id !== subtask.id);
+        
+        if (subtask.completed) {
+            task.completedSubtasks--;
+        }
+        task.totalSubtasks--;
+        
         setSubtasks(newSubtasks);
         task.subtasks = newSubtasks;
     }
@@ -219,6 +216,7 @@ function TaskContainer(props: Props) {
             {getTaskFormat()}
 
             <Modal
+                // onClick={reloadComponent}
                 opened={modalOpened}
                 onClose={close}
                 title={`Editing ${task.title}`}
@@ -284,19 +282,30 @@ function TaskContainer(props: Props) {
                 <Divider my="md" />
 
                     <h1>Subtasks</h1>
+                    {/* <div>{subtasks.map()}</div> */}
 
                 {
                     subtasks.map((item, index) => (
                         <div key={item.id} style={{marginBottom:'15px'}}>
                         {index !== 0 && <Divider />}
-                            {!editSubtaskMode && 
+                            {!editSubtaskMode &&
                                 <div>
+                                    
                                     <Group>
                                     <Checkbox 
                                         // {...form.getInputProps('terms', { type: 'checkbox' })}
                                         checked={item.completed} 
                                         onChange={(_) => handleSubtaskCompleted(item)}/>
+                                    
                                     <div style={{fontSize: 18, textDecoration: item.completed ? "line-through": ""}}>{item.title} - {item.description}</div>
+                                    
+                                    <SubtaskModal subtask={item} editSubtaskTitle={editSubtaskTitle} editSubtaskDescription={editSubtaskDescription}/>
+                                    
+                                    <ActionIcon variant="filled" color="red" size="md" radius="md" aria-label="Trash-Task" style={{marginTop: '5px'}}>
+                                        <IconTrash onClick={(_) => deleteSubtask(item)} style={{ width: '70%', height: '70%' }} stroke={1.5} /> 
+                                    </ActionIcon>
+
+                                    
                                     </Group>
                                 </div>
                             }
@@ -307,6 +316,7 @@ function TaskContainer(props: Props) {
                 </div>
 
                 <div> {/* subtask */}
+
 
                     <TextInput label="Subtask title"
                         placeholder="Subtask Title"
@@ -322,6 +332,7 @@ function TaskContainer(props: Props) {
                                 style={{ display: taskTitle ? undefined : 'none' }}
                             />
                     } />
+
 
                     {/* <Group justify="space-between"> */}
                     <div style={{display: 'flex', alignItems:  'space-between'}}>
